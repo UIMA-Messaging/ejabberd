@@ -32,7 +32,7 @@ jobs:
           username: dockeroo80
           password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
           
-  ecr:
+  ecr:    
     runs-on: ubuntu-latest
     
     steps:
@@ -54,19 +54,28 @@ jobs:
       run: |
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-    
-  ecs:
+        
+  re-run-task:
     needs: ecr
-    
+
     runs-on: ubuntu-latest
-    
+
     steps:
+    - uses: actions/checkout@v2
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: eu-west-2
-    - name: Rerun ECS service
+        aws-region: ${{ env.AWS_REGION }}
+        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+    - name: Stop the running task
+      run: |
+        TASK_ARN=$(aws ecs list-tasks --cluster $ECS_CLUSTER_NAME --service-name $ECS_SERVICE_NAME --desired-status RUNNING --query 'taskArns[0]' --output text)
+        if [ ! -z "$TASK_ARN" ]; then
+          echo $TASK_ARN 
+          aws ecs stop-task --task $TASK_ARN --cluster $ECS_CLUSTER_NAME
+        fi
+    - name: Run the updated task
       run: |
         aws ecs update-service --cluster $ECS_CLUSTER_NAME --service $ECS_SERVICE_NAME --force-new-deployment --task-definition $ECS_TASK_DEFINITION_NAME
+        
