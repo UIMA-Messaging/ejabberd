@@ -1,35 +1,23 @@
-name: Deploy ejabberd to AWS ECS
-
+name: Build and deploy ejabberd container
 on:
   push:
     branches:
       - master
-
-env:
-  AWS_REGION: eu-west-2
-  AWS_ECS_CLUSTER: uima
-  AWS_ECS_SERVICE: ejabberd
-  IMAGE_NAME: ejabberd/ecs
-
 jobs:
-  deploy:
+  build:
+  
     runs-on: ubuntu-latest
-
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+      - uses: actions/checkout@v3
+        name: Check out code
+        
+      - name: Build & push Docker image
+        uses: mr-smithers-excellent/docker-build-push@v6
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Update ECS service
-        run: |
-          aws ecs update-service \
-            --cluster ${{ env.AWS_ECS_CLUSTER }} \
-            --service ${{ env.AWS_ECS_SERVICE }} \
-            --force-new-deployment \
-            --image ${{ env.IMAGE_NAME }}
+          image: dockeroo80/uima-identity-service
+          tags: latest
+          registry: docker.io
+          dockerfile: ./Dockerfile
+          username: dockeroo80
+          password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
