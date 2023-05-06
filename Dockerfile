@@ -1,2 +1,2 @@
 FROM ejabberd/ecs
-COPY ejabberd.yml /opt/ejabberd/conf/ejabberd.yml
+COPY ./conf/ejabberd.yml /opt/ejabberd/conf/ejabberd.yml
