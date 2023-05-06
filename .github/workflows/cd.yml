@@ -9,7 +9,7 @@ env:
   AWS_REGION: eu-west-2
   ECS_CLUSTER_NAME: uima
   ECS_SERVICE_NAME: ejabberd
-  ECS_TASK_DEFINITION_NAME: ejabberd-deploy
+  ECS_TASK_DEFINITION_NAME: uima-ejabberd-deploy
   ECR_REPOSITORY_NAME: uima/ejabberd
   ECR_IMAGE_TAG: latest
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
