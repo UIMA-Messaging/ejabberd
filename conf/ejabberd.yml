@@ -19,7 +19,7 @@ ca_file: "/home/ejabberd/conf/cacert.pem"
 
 default_db: sql
 sql_type: pgsql
-sql_server: 192.168.0.103
+sql_server: "ec2-13-41-66-152.eu-west-2.compute.amazonaws.com"
 sql_port: 5432
 sql_database: "Ejabberd"
 sql_username: "ejabberd"
