@@ -33,5 +33,3 @@ spec:
                 secretKeyRef:
                   name: ejabberd-secrets
                   key: admin-password
-            - name: CTL_ON_CREATE
-              value: register admin localhost admin
