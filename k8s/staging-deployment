@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ejabberd-app
+spec:
+  selector:
+    matchLabels:
+      app: ejabberd-app
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ejabberd-app
+    spec:
+      containers:
+        - name: ejabberd
+          image: dockeroo80/uima-ejabberd:staging
+          ports:
+            - containerPort: 5443
+              name: ejabberd-5443
+            - containerPort: 5222
+              name: ejabberd-5222
+            - containerPort: 5280
+              name: ejabberd-5280
+          env:
+            - name: EJABBERD_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: ejabberd-secrets
+                  key: admin-user
+            - name: EJABBERD_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ejabberd-secrets
+                  key: admin-password
