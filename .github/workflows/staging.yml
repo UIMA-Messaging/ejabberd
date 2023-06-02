@@ -1,0 +1,42 @@
+name: Staging Pipeline
+
+on:
+  release:
+    types:
+      - created
+      
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        name: Check out code
+      - name: Build & push Docker image
+        uses: mr-smithers-excellent/docker-build-push@v6
+        with:
+          image: dockeroo80/uima-ejabberd-service
+          tags: staging
+          registry: docker.io
+          dockerfile: Dockerfile
+          username: dockeroo80
+          password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
+          
+  deploy:
+    needs: docker
+  
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Generate kube configuration
+        run: |
+          mkdir ~/.kube
+          touch ~/.kube/config
+          echo "${{ secrets.STAGING_AKS_CONTEXT }}" >> ~/.kube/config
+
+      - name: Deploy application
+        run: kubectl apply -f k8s/staging-deployment.yml
+
+      - name: Restart pod
+        run: kubectl rollout restart deploy ejabberd-app
