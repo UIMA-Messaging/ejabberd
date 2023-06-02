@@ -1,9 +1,9 @@
 name: Staging Pipeline
 
 on:
-  release:
-    types:
-      - created
+  push:
+    branches:
+      - master
       
 jobs:
   docker:
